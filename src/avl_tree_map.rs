@@ -85,24 +85,24 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         balance_factor as i8
     }
 
-    fn subtree_size_invariant_is_met(root_node_ptr: &NodePtr<K, V>) -> bool {
+    fn subtree_size_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
         let Some(b) = root_node_ptr else {
             return true;
         };
         let root = &**b;
-        Self::subtree_size_invariant_is_met(&root.left_child)
-            && Self::subtree_size_invariant_is_met(&root.right_child)
+        Self::subtree_size_invariant_met(&root.left_child)
+            && Self::subtree_size_invariant_met(&root.right_child)
             && root.subtree_size
                 == 1 + Self::subtree_size(&root.left_child) + Self::subtree_size(&root.right_child)
     }
 
-    fn subtree_height_invariant_is_met(root_node_ptr: &NodePtr<K, V>) -> bool {
+    fn subtree_height_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
         let Some(b) = root_node_ptr else {
             return true;
         };
         let root = &**b;
-        Self::subtree_height_invariant_is_met(&root.left_child)
-            && Self::subtree_height_invariant_is_met(&root.right_child)
+        Self::subtree_height_invariant_met(&root.left_child)
+            && Self::subtree_height_invariant_met(&root.right_child)
             && root.subtree_height
                 == 1 + cmp::max(
                     Self::subtree_height(&root.left_child),
@@ -110,7 +110,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
                 )
     }
 
-    fn bst_invariant_is_met_and_keys_are_within_bounds(
+    fn bst_invariant_met_and_keys_within_bounds(
         root_node_ptr: &NodePtr<K, V>,
         strict_lower_bound: Option<&K>,
         strict_upper_bound: Option<&K>,
@@ -122,38 +122,38 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         let root_key = &root.key;
         strict_lower_bound.map_or(true, |b| b < root_key)
             && strict_upper_bound.map_or(true, |b| root_key < b)
-            && Self::bst_invariant_is_met_and_keys_are_within_bounds(
+            && Self::bst_invariant_met_and_keys_within_bounds(
                 &root.left_child,
                 strict_lower_bound,
                 Some(root_key),
             )
-            && Self::bst_invariant_is_met_and_keys_are_within_bounds(
+            && Self::bst_invariant_met_and_keys_within_bounds(
                 &root.right_child,
                 Some(root_key),
                 strict_upper_bound,
             )
     }
 
-    fn bst_invariant_is_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        Self::bst_invariant_is_met_and_keys_are_within_bounds(root_node_ptr, None, None)
+    fn bst_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
+        Self::bst_invariant_met_and_keys_within_bounds(root_node_ptr, None, None)
     }
 
-    fn avl_tree_invariant_is_met(root_node_ptr: &NodePtr<K, V>) -> bool {
+    fn avl_tree_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
         let Some(b) = root_node_ptr else {
             return true;
         };
         let root = &**b;
-        Self::avl_tree_invariant_is_met(&root.left_child)
-            && Self::avl_tree_invariant_is_met(&root.right_child)
+        Self::avl_tree_invariant_met(&root.left_child)
+            && Self::avl_tree_invariant_met(&root.right_child)
             && (-1..=1).contains(&Self::balance_factor(root))
     }
 
-    fn invariants_are_met(&self) -> bool {
+    fn invariants_met(&self) -> bool {
         let root_node_ptr = &self.root;
-        Self::subtree_size_invariant_is_met(root_node_ptr)
-            && Self::subtree_height_invariant_is_met(root_node_ptr)
-            && Self::bst_invariant_is_met(root_node_ptr)
-            && Self::avl_tree_invariant_is_met(root_node_ptr)
+        Self::subtree_size_invariant_met(root_node_ptr)
+            && Self::subtree_height_invariant_met(root_node_ptr)
+            && Self::bst_invariant_met(root_node_ptr)
+            && Self::avl_tree_invariant_met(root_node_ptr)
     }
 
     fn update_subtree_size(node: &mut Node<K, V>) {
@@ -404,7 +404,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
 
     pub fn insert(&mut self, key: K, value: V) -> Option<V> {
         let old_value = Self::insert_node(&mut self.root, Node::new(key, value)).map(|b| b.value);
-        debug_assert!(self.invariants_are_met());
+        debug_assert!(self.invariants_met());
         old_value
     }
 
@@ -431,7 +431,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
             None
         } else {
             let min_node = unsafe { Self::remove_min_node(&mut self.root) };
-            debug_assert!(self.invariants_are_met());
+            debug_assert!(self.invariants_met());
             Some((min_node.key, min_node.value))
         }
     }
@@ -486,7 +486,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
 
     pub fn remove(&mut self, key: &K) -> Option<V> {
         let removed_value = Self::remove_node(&mut self.root, key).map(|b| b.value);
-        debug_assert!(self.invariants_are_met());
+        debug_assert!(self.invariants_met());
         removed_value
     }
 
