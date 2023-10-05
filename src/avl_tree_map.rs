@@ -1,18 +1,9 @@
 #![allow(unused)]
 #![deny(unsafe_op_in_unsafe_fn)]
 use std::{
-    arch::x86_64::_subborrow_u32,
     cmp::{self, max, Ordering},
     mem,
 };
-
-// Balance factor
-#[derive(Clone, Copy)]
-enum Bf {
-    LeftHeavy,
-    EquallyHeavy,
-    RightHeavy,
-}
 
 struct Node<K: Ord, V> {
     key: K,
@@ -366,8 +357,8 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     // Insert node into the tree whose root is pointed to by root_node_ptr. If node.key already
-    // exists in the tree, then value in the node containing the key is swapped with the value in
-    // node and the updated node is returned, otherwise None is returned.
+    // exists in the tree, then the value in the node containing the key is swapped with the value
+    // in node and the updated node is returned, otherwise None is returned.
     fn insert_node(root_node_ptr: &mut NodePtr<K, V>, mut node: Box<Node<K, V>>) -> NodePtr<K, V> {
         let Some(b) = root_node_ptr else {
             *root_node_ptr = Some(node);
