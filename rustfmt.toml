@@ -1,0 +1,6 @@
+# Stable options
+edition = "2021"
+
+# Unstable options
+unstable_features = true
+wrap_comments = true
