@@ -356,9 +356,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    // Insert node into the tree whose root is pointed to by root_node_ptr. If node.key already
-    // exists in the tree, then the value in the node containing the key is swapped with the value
-    // in node and the updated node is returned, otherwise None is returned.
+    /// Insert `node` into the tree whose root is pointed to by `root_node_ptr`.
+    /// If `node.key` already exists in the tree, then the value in the existing
+    /// node containing the key is swapped with the value in `node` and the
+    /// updated `node` is returned, otherwise `None` is returned.
     fn insert_node(root_node_ptr: &mut NodePtr<K, V>, mut node: Box<Node<K, V>>) -> NodePtr<K, V> {
         let Some(b) = root_node_ptr else {
             *root_node_ptr = Some(node);
@@ -399,9 +400,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         old_value
     }
 
-    // Remove the minimum node in the non-empty tree whose root is pointed to by root_node_ptr
-    // (performing any number of rotations necessary to preserve the AVL tree invariant throughout),
-    // and return it (with the right_child field set to None).
+    /// Remove the minimum node in the non-empty tree whose root is pointed to
+    /// by `root_node_ptr` (performing any number of rotations necessary to
+    /// preserve the AVL tree invariant throughout), set its `right_child` field
+    /// to `None`, and return it.
     unsafe fn remove_min_node(root_node_ptr: &mut NodePtr<K, V>) -> Box<Node<K, V>> {
         debug_assert!(root_node_ptr.is_some());
         let root = unsafe { Self::node_of(root_node_ptr) };
