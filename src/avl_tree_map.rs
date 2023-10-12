@@ -33,18 +33,6 @@ struct AvlTreeMap<K: Ord, V> {
     root: NodePtr<K, V>,
 }
 
-#[derive(PartialEq, Eq)]
-enum HeightInc {
-    Yes,
-    No,
-}
-
-#[derive(PartialEq, Eq)]
-enum HeightDec {
-    Yes,
-    No,
-}
-
 impl<K: Ord, V> AvlTreeMap<K, V> {
     pub fn new() -> AvlTreeMap<K, V> {
         AvlTreeMap { root: None }
