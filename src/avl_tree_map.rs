@@ -3,6 +3,7 @@
 use std::{
     cmp::{self, max, Ordering},
     mem,
+    ops::{Bound, RangeBounds},
 };
 
 struct Node<K: Ord, V> {
@@ -89,32 +90,31 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
                 )
     }
 
-    fn bst_invariant_met_and_keys_within_bounds(
+    fn bst_invariant_met_and_keys_in_range(
         root_node_ptr: &NodePtr<K, V>,
-        strict_lower_bound: Option<&K>,
-        strict_upper_bound: Option<&K>,
+        range: (Bound<&K>, Bound<&K>),
     ) -> bool {
         let Some(b) = root_node_ptr else {
             return true;
         };
         let root = &**b;
         let root_key = &root.key;
-        strict_lower_bound.map_or(true, |b| b < root_key)
-            && strict_upper_bound.map_or(true, |b| root_key < b)
-            && Self::bst_invariant_met_and_keys_within_bounds(
+        range.contains(root_key)
+            && Self::bst_invariant_met_and_keys_in_range(
                 &root.left_child,
-                strict_lower_bound,
-                Some(root_key),
+                (range.start_bound(), Bound::Excluded(root_key)),
             )
-            && Self::bst_invariant_met_and_keys_within_bounds(
+            && Self::bst_invariant_met_and_keys_in_range(
                 &root.right_child,
-                Some(root_key),
-                strict_upper_bound,
+                (Bound::Excluded(root_key), range.end_bound()),
             )
     }
 
     fn bst_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        Self::bst_invariant_met_and_keys_within_bounds(root_node_ptr, None, None)
+        Self::bst_invariant_met_and_keys_in_range(
+            root_node_ptr,
+            (Bound::Unbounded, Bound::Unbounded),
+        )
     }
 
     fn avl_tree_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
