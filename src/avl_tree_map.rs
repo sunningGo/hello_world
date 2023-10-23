@@ -507,4 +507,7 @@ impl<'a, K: Ord, V> Iterator for Iter<'a, K, V> {
 }
 
 #[cfg(test)]
-mod test;
+mod test {
+    #[test]
+    fn test_something() {}
+}
