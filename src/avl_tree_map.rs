@@ -505,3 +505,6 @@ impl<'a, K: Ord, V> Iterator for Iter<'a, K, V> {
         Some((&next_node.key, &next_node.value))
     }
 }
+
+#[cfg(test)]
+mod test;
