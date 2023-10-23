@@ -487,7 +487,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 }
 
-struct Iter<'a, K: Ord, V>(
+pub struct Iter<'a, K: Ord, V>(
     Vec<&'a Node<K, V>>, // used as a stack
 );
 
