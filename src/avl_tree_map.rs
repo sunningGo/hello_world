@@ -30,7 +30,7 @@ impl<K: Ord, V> Node<K, V> {
 
 type NodePtr<K, V> = Option<Box<Node<K, V>>>;
 
-struct AvlTreeMap<K: Ord, V> {
+pub struct AvlTreeMap<K: Ord, V> {
     root: NodePtr<K, V>,
 }
 
