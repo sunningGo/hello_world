@@ -471,7 +471,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         removed_value
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> + '_ {
+    pub fn iter(&self) -> Iter<'_, K, V> {
         let mut iter = Iter::<K, V>(vec![]);
         let mut cur_node_ptr = &self.root;
         while let Some(b) = cur_node_ptr {
