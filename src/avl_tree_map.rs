@@ -66,10 +66,9 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     fn subtree_size_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        let Some(b) = root_node_ptr else {
+        let Some(root) = root_node_ptr.as_deref() else {
             return true;
         };
-        let root = &**b;
         Self::subtree_size_invariant_met(&root.left_child)
             && Self::subtree_size_invariant_met(&root.right_child)
             && root.subtree_size
@@ -77,10 +76,9 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     fn subtree_height_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        let Some(b) = root_node_ptr else {
+        let Some(root) = root_node_ptr.as_deref() else {
             return true;
         };
-        let root = &**b;
         Self::subtree_height_invariant_met(&root.left_child)
             && Self::subtree_height_invariant_met(&root.right_child)
             && root.subtree_height
@@ -94,10 +92,9 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         root_node_ptr: &NodePtr<K, V>,
         range: (Bound<&K>, Bound<&K>),
     ) -> bool {
-        let Some(b) = root_node_ptr else {
+        let Some(root) = root_node_ptr.as_deref() else {
             return true;
         };
-        let root = &**b;
         let root_key = &root.key;
         range.contains(root_key)
             && Self::bst_invariant_met_and_keys_in_range(
@@ -118,10 +115,9 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     fn avl_tree_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        let Some(b) = root_node_ptr else {
+        let Some(root) = root_node_ptr.as_deref() else {
             return true;
         };
-        let root = &**b;
         Self::avl_tree_invariant_met(&root.left_child)
             && Self::avl_tree_invariant_met(&root.right_child)
             && (-1..=1).contains(&Self::balance_factor(root))
@@ -349,11 +345,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     /// node containing the key is swapped with the value in `node` and the
     /// updated `node` is returned, otherwise `None` is returned.
     fn insert_node(root_node_ptr: &mut NodePtr<K, V>, mut node: Box<Node<K, V>>) -> NodePtr<K, V> {
-        let Some(b) = root_node_ptr else {
+        let Some(root) = root_node_ptr.as_deref_mut() else {
             *root_node_ptr = Some(node);
             return None;
         };
-        let root = &mut **b;
         match node.key.cmp(&root.key) {
             Ordering::Equal => {
                 mem::swap(&mut root.value, &mut node.value);
@@ -418,10 +413,9 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     fn remove_node(root_node_ptr: &mut NodePtr<K, V>, key: &K) -> NodePtr<K, V> {
-        let Some(b) = root_node_ptr else {
+        let Some(root) = root_node_ptr.as_deref_mut() else {
             return None;
         };
-        let root = &mut **b;
         match key.cmp(&root.key) {
             Ordering::Equal => {
                 if root.left_child.is_none() {
