@@ -17,7 +17,7 @@ struct Node<K: Ord, V> {
 }
 
 impl<K: Ord, V> Node<K, V> {
-    fn new(key: K, value: V) -> Box<Node<K, V>> {
+    fn new(key: K, value: V) -> Box<Self> {
         Box::new(Node {
             key,
             value,
@@ -36,7 +36,7 @@ pub struct AvlTreeMap<K: Ord, V> {
 }
 
 impl<K: Ord, V> AvlTreeMap<K, V> {
-    pub fn new() -> AvlTreeMap<K, V> {
+    pub fn new() -> Self {
         AvlTreeMap { root: None }
     }
 
