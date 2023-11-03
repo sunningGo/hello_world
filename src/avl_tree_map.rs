@@ -18,7 +18,7 @@ struct Node<K: Ord, V> {
 
 impl<K: Ord, V> Node<K, V> {
     fn new(key: K, value: V) -> Box<Self> {
-        Box::new(Node {
+        Box::new(Self {
             key,
             value,
             subtree_size: 1,
