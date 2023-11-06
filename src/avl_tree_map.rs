@@ -31,7 +31,6 @@ impl<K: Ord, V> Node<K, V> {
 
 type NodePtr<K, V> = Option<Box<Node<K, V>>>;
 
-#[derive(Default)]
 pub struct AvlTreeMap<K: Ord, V> {
     root: NodePtr<K, V>,
 }
@@ -500,6 +499,12 @@ impl<'a, K: Ord, V> Iterator for Iter<'a, K, V> {
             cur_node_ptr = &cur_node.left_child;
         }
         Some((&next_node.key, &next_node.value))
+    }
+}
+
+impl<K: Ord, V> Default for AvlTreeMap<K, V> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
