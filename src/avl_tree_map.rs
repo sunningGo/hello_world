@@ -70,22 +70,24 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         let Some(root) = root_node_ptr.as_deref() else {
             return true;
         };
-        Self::subtree_size_invariant_met(&root.left_child)
-            && Self::subtree_size_invariant_met(&root.right_child)
+        let (left_child_ptr, right_child_ptr) = (&root.left_child, &root.right_child);
+        Self::subtree_size_invariant_met(left_child_ptr)
+            && Self::subtree_size_invariant_met(right_child_ptr)
             && root.subtree_size
-                == 1 + Self::subtree_size(&root.left_child) + Self::subtree_size(&root.right_child)
+                == 1 + Self::subtree_size(left_child_ptr) + Self::subtree_size(right_child_ptr)
     }
 
     fn subtree_height_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
         let Some(root) = root_node_ptr.as_deref() else {
             return true;
         };
-        Self::subtree_height_invariant_met(&root.left_child)
-            && Self::subtree_height_invariant_met(&root.right_child)
+        let (left_child_ptr, right_child_ptr) = (&root.left_child, &root.right_child);
+        Self::subtree_height_invariant_met(left_child_ptr)
+            && Self::subtree_height_invariant_met(right_child_ptr)
             && root.subtree_height
                 == 1 + cmp::max(
-                    Self::subtree_height(&root.left_child),
-                    Self::subtree_height(&root.right_child),
+                    Self::subtree_height(left_child_ptr),
+                    Self::subtree_height(right_child_ptr),
                 )
     }
 
