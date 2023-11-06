@@ -44,15 +44,15 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         self.root.is_none()
     }
 
-    fn subtree_size(root_node_ptr: &NodePtr<K, V>) -> usize {
-        match root_node_ptr {
+    fn subtree_size(root_ptr: &NodePtr<K, V>) -> usize {
+        match root_ptr {
             Some(b) => (**b).subtree_size,
             None => 0,
         }
     }
 
-    fn subtree_height(root_node_ptr: &NodePtr<K, V>) -> u8 {
-        match root_node_ptr {
+    fn subtree_height(root_ptr: &NodePtr<K, V>) -> u8 {
+        match root_ptr {
             Some(b) => (**b).subtree_height,
             None => 0,
         }
@@ -66,22 +66,24 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         balance_factor as i8
     }
 
-    fn subtree_size_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        let Some(root) = root_node_ptr.as_deref() else {
+    fn subtree_size_invariant_met(root_ptr: &NodePtr<K, V>) -> bool {
+        let Some(root) = root_ptr.as_deref() else {
             return true;
         };
-        let (left_child_ptr, right_child_ptr) = (&root.left_child, &root.right_child);
+        let left_child_ptr = &root.left_child;
+        let right_child_ptr = &root.right_child;
         Self::subtree_size_invariant_met(left_child_ptr)
             && Self::subtree_size_invariant_met(right_child_ptr)
             && root.subtree_size
                 == 1 + Self::subtree_size(left_child_ptr) + Self::subtree_size(right_child_ptr)
     }
 
-    fn subtree_height_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        let Some(root) = root_node_ptr.as_deref() else {
+    fn subtree_height_invariant_met(root_ptr: &NodePtr<K, V>) -> bool {
+        let Some(root) = root_ptr.as_deref() else {
             return true;
         };
-        let (left_child_ptr, right_child_ptr) = (&root.left_child, &root.right_child);
+        let left_child_ptr = &root.left_child;
+        let right_child_ptr = &root.right_child;
         Self::subtree_height_invariant_met(left_child_ptr)
             && Self::subtree_height_invariant_met(right_child_ptr)
             && root.subtree_height
@@ -92,10 +94,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     fn bst_invariant_met_and_keys_in_range(
-        root_node_ptr: &NodePtr<K, V>,
+        root_ptr: &NodePtr<K, V>,
         range: (Bound<&K>, Bound<&K>),
     ) -> bool {
-        let Some(root) = root_node_ptr.as_deref() else {
+        let Some(root) = root_ptr.as_deref() else {
             return true;
         };
         let root_key = &root.key;
@@ -110,15 +112,12 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
             )
     }
 
-    fn bst_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        Self::bst_invariant_met_and_keys_in_range(
-            root_node_ptr,
-            (Bound::Unbounded, Bound::Unbounded),
-        )
+    fn bst_invariant_met(root_ptr: &NodePtr<K, V>) -> bool {
+        Self::bst_invariant_met_and_keys_in_range(root_ptr, (Bound::Unbounded, Bound::Unbounded))
     }
 
-    fn avl_tree_invariant_met(root_node_ptr: &NodePtr<K, V>) -> bool {
-        let Some(root) = root_node_ptr.as_deref() else {
+    fn avl_tree_invariant_met(root_ptr: &NodePtr<K, V>) -> bool {
+        let Some(root) = root_ptr.as_deref() else {
             return true;
         };
         Self::avl_tree_invariant_met(&root.left_child)
@@ -127,28 +126,28 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     fn invariants_met(&self) -> bool {
-        let root_node_ptr = &self.root;
-        Self::subtree_size_invariant_met(root_node_ptr)
-            && Self::subtree_height_invariant_met(root_node_ptr)
-            && Self::bst_invariant_met(root_node_ptr)
-            && Self::avl_tree_invariant_met(root_node_ptr)
+        let root_ptr = &self.root;
+        Self::subtree_size_invariant_met(root_ptr)
+            && Self::subtree_height_invariant_met(root_ptr)
+            && Self::bst_invariant_met(root_ptr)
+            && Self::avl_tree_invariant_met(root_ptr)
     }
 
-    fn update_subtree_size(node: &mut Node<K, V>) {
-        node.subtree_size =
-            1 + Self::subtree_size(&node.left_child) + Self::subtree_size(&node.right_child);
+    fn update_subtree_size(root: &mut Node<K, V>) {
+        root.subtree_size =
+            1 + Self::subtree_size(&root.left_child) + Self::subtree_size(&root.right_child);
     }
 
-    fn update_subtree_height(node: &mut Node<K, V>) {
-        node.subtree_height = 1 + cmp::max(
-            Self::subtree_height(&node.left_child),
-            Self::subtree_height(&node.right_child),
+    fn update_subtree_height(root: &mut Node<K, V>) {
+        root.subtree_height = 1 + cmp::max(
+            Self::subtree_height(&root.left_child),
+            Self::subtree_height(&root.right_child),
         );
     }
 
-    fn update_subtree_size_and_height(node: &mut Node<K, V>) {
-        Self::update_subtree_size(node);
-        Self::update_subtree_height(node);
+    fn update_subtree_size_and_height(root: &mut Node<K, V>) {
+        Self::update_subtree_size(root);
+        Self::update_subtree_height(root);
     }
 
     pub fn len(&self) -> usize {
@@ -343,13 +342,13 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    /// Insert `node` into the tree whose root is pointed to by `root_node_ptr`.
-    /// If `node.key` already exists in the tree, then the value in the existing
+    /// Insert `node` into the tree whose root is pointed to by `root_ptr`. If
+    /// `node.key` already exists in the tree, then the value in the existing
     /// node containing the key is swapped with the value in `node` and the
     /// updated `node` is returned, otherwise `None` is returned.
-    fn insert_node(root_node_ptr: &mut NodePtr<K, V>, mut node: Box<Node<K, V>>) -> NodePtr<K, V> {
-        let Some(root) = root_node_ptr.as_deref_mut() else {
-            *root_node_ptr = Some(node);
+    fn insert_node(root_ptr: &mut NodePtr<K, V>, mut node: Box<Node<K, V>>) -> NodePtr<K, V> {
+        let Some(root) = root_ptr.as_deref_mut() else {
+            *root_ptr = Some(node);
             return None;
         };
         match node.key.cmp(&root.key) {
@@ -364,7 +363,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
                 }
                 root.subtree_size += 1;
                 Self::update_subtree_height(root);
-                unsafe { Self::fix_if_left_subtree_is_too_tall(root_node_ptr) };
+                unsafe { Self::fix_if_left_subtree_is_too_tall(root_ptr) };
                 None
             }
             Ordering::Greater => {
@@ -374,7 +373,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
                 }
                 root.subtree_size += 1;
                 Self::update_subtree_height(root);
-                unsafe { Self::fix_if_right_subtree_is_too_tall(root_node_ptr) };
+                unsafe { Self::fix_if_right_subtree_is_too_tall(root_ptr) };
                 None
             }
         }
@@ -387,21 +386,21 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 
     /// Remove the minimum node in the non-empty tree whose root is pointed to
-    /// by `root_node_ptr` (performing any number of rotations necessary to
-    /// preserve the AVL tree invariant throughout), set its `right_child` field
-    /// to `None`, and return it.
-    unsafe fn remove_min_node(root_node_ptr: &mut NodePtr<K, V>) -> Box<Node<K, V>> {
-        debug_assert!(root_node_ptr.is_some());
-        let root = unsafe { Self::node_of(root_node_ptr) };
+    /// by `root_ptr` (performing any number of rotations necessary to preserve
+    /// the AVL tree invariant throughout), set its `right_child` field to
+    /// `None`, and return it.
+    unsafe fn remove_min_node(root_ptr: &mut NodePtr<K, V>) -> Box<Node<K, V>> {
+        debug_assert!(root_ptr.is_some());
+        let root = unsafe { Self::node_of(root_ptr) };
         if root.left_child.is_some() {
             let min_node = unsafe { Self::remove_min_node(&mut root.left_child) };
             root.subtree_size -= 1;
             Self::update_subtree_height(root);
-            unsafe { Self::fix_if_right_subtree_is_too_tall(root_node_ptr) };
+            unsafe { Self::fix_if_right_subtree_is_too_tall(root_ptr) };
             min_node
         } else {
             let right_subtree = mem::take(&mut root.right_child);
-            unsafe { mem::replace(root_node_ptr, right_subtree).unwrap_unchecked() }
+            unsafe { mem::replace(root_ptr, right_subtree).unwrap_unchecked() }
         }
     }
 
@@ -415,18 +414,18 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    fn remove_node(root_node_ptr: &mut NodePtr<K, V>, key: &K) -> NodePtr<K, V> {
-        let Some(root) = root_node_ptr.as_deref_mut() else {
+    fn remove_node(root_ptr: &mut NodePtr<K, V>, key: &K) -> NodePtr<K, V> {
+        let Some(root) = root_ptr.as_deref_mut() else {
             return None;
         };
         match key.cmp(&root.key) {
             Ordering::Equal => {
                 if root.left_child.is_none() {
                     let right_subtree = mem::take(&mut root.right_child);
-                    mem::replace(root_node_ptr, right_subtree)
+                    mem::replace(root_ptr, right_subtree)
                 } else if root.right_child.is_none() {
                     let left_subtree = mem::take(&mut root.left_child);
-                    mem::replace(root_node_ptr, left_subtree)
+                    mem::replace(root_ptr, left_subtree)
                 } else {
                     let mut replacement_node =
                         unsafe { Self::remove_min_node(&mut root.right_child) };
@@ -434,8 +433,8 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
                     replacement_node.right_child = mem::take(&mut root.right_child);
                     replacement_node.subtree_size = root.subtree_size - 1;
                     Self::update_subtree_height(&mut *replacement_node);
-                    let removed_node = mem::replace(root_node_ptr, Some(replacement_node));
-                    unsafe { Self::fix_if_left_subtree_is_too_tall(root_node_ptr) };
+                    let removed_node = mem::replace(root_ptr, Some(replacement_node));
+                    unsafe { Self::fix_if_left_subtree_is_too_tall(root_ptr) };
                     removed_node
                 }
             }
@@ -446,7 +445,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
                 }
                 root.subtree_size -= 1;
                 Self::update_subtree_height(root);
-                unsafe { Self::fix_if_right_subtree_is_too_tall(root_node_ptr) };
+                unsafe { Self::fix_if_right_subtree_is_too_tall(root_ptr) };
                 removed_node
             }
             Ordering::Greater => {
@@ -456,7 +455,7 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
                 }
                 root.subtree_size -= 1;
                 Self::update_subtree_height(root);
-                unsafe { Self::fix_if_left_subtree_is_too_tall(root_node_ptr) };
+                unsafe { Self::fix_if_left_subtree_is_too_tall(root_ptr) };
                 removed_node
             }
         }
