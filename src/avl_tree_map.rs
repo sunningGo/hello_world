@@ -509,7 +509,9 @@ impl<K: Ord, V> Default for AvlTreeMap<K, V> {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
+    use super::*;
+
     #[test]
     fn test_something() {}
 }
