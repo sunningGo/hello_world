@@ -8,7 +8,7 @@ use std::{
 };
 
 #[derive(Clone)]
-struct Node<K: Ord, V> {
+struct Node<K, V> {
     key: K,
     value: V,
     subtree_size: usize, // size of the subtree rooted at this node
@@ -17,7 +17,7 @@ struct Node<K: Ord, V> {
     right_child: NodePtr<K, V>,
 }
 
-impl<K: Ord, V> Node<K, V> {
+impl<K, V> Node<K, V> {
     fn new(key: K, value: V) -> Box<Self> {
         Box::new(Self {
             key,
@@ -33,11 +33,11 @@ impl<K: Ord, V> Node<K, V> {
 type NodePtr<K, V> = Option<Box<Node<K, V>>>;
 
 #[derive(Clone)]
-pub struct AvlTreeMap<K: Ord, V> {
+pub struct AvlTreeMap<K, V> {
     root: NodePtr<K, V>,
 }
 
-impl<K: Ord, V> AvlTreeMap<K, V> {
+impl<K, V> AvlTreeMap<K, V> {
     pub fn new() -> Self {
         AvlTreeMap { root: None }
     }
@@ -98,7 +98,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     fn bst_invariant_met_and_keys_in_range(
         root_ptr: &NodePtr<K, V>,
         range: (Bound<&K>, Bound<&K>),
-    ) -> bool {
+    ) -> bool
+    where
+        K: Ord,
+    {
         let Some(root) = root_ptr.as_deref() else {
             return true;
         };
@@ -114,7 +117,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
             )
     }
 
-    fn bst_invariant_met(root_ptr: &NodePtr<K, V>) -> bool {
+    fn bst_invariant_met(root_ptr: &NodePtr<K, V>) -> bool
+    where
+        K: Ord,
+    {
         Self::bst_invariant_met_and_keys_in_range(root_ptr, (Bound::Unbounded, Bound::Unbounded))
     }
 
@@ -127,7 +133,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
             && (-1..=1).contains(&Self::balance_factor(root))
     }
 
-    fn invariants_met(&self) -> bool {
+    fn invariants_met(&self) -> bool
+    where
+        K: Ord,
+    {
         let root_ptr = &self.root;
         Self::subtree_size_invariant_met(root_ptr)
             && Self::subtree_height_invariant_met(root_ptr)
@@ -156,7 +165,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         Self::subtree_size(&self.root)
     }
 
-    fn get_node(&self, key: &K) -> Option<&Node<K, V>> {
+    fn get_node(&self, key: &K) -> Option<&Node<K, V>>
+    where
+        K: Ord,
+    {
         let mut cur_node_ptr = &self.root;
         loop {
             let cur_node = &**cur_node_ptr.as_ref()?;
@@ -168,11 +180,17 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    pub fn contains_key(&self, key: &K) -> bool {
+    pub fn contains_key(&self, key: &K) -> bool
+    where
+        K: Ord,
+    {
         self.get_node(key).is_some()
     }
 
-    pub fn get(&self, key: &K) -> Option<&V> {
+    pub fn get(&self, key: &K) -> Option<&V>
+    where
+        K: Ord,
+    {
         self.get_node(key).map({ |node| &node.value })
     }
 
@@ -194,7 +212,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         Some((&max_node.key, &max_node.value))
     }
 
-    pub fn floor(&self, key: &K) -> Option<(&K, &V)> {
+    pub fn floor(&self, key: &K) -> Option<(&K, &V)>
+    where
+        K: Ord,
+    {
         let mut cur_node_ptr = &self.root;
         let mut candidate: Option<&Node<K, V>> = None;
         while let Some(b) = cur_node_ptr {
@@ -211,7 +232,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         candidate.map(|node| (&node.key, &node.value))
     }
 
-    pub fn ceiling(&self, key: &K) -> Option<(&K, &V)> {
+    pub fn ceiling(&self, key: &K) -> Option<(&K, &V)>
+    where
+        K: Ord,
+    {
         let mut cur_node_ptr = &self.root;
         let mut candidate: Option<&Node<K, V>> = None;
         while let Some(b) = cur_node_ptr {
@@ -244,7 +268,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    pub fn rank(&self, key: &K) -> usize {
+    pub fn rank(&self, key: &K) -> usize
+    where
+        K: Ord,
+    {
         let mut cur_node_ptr = &self.root;
         let mut num_of_smaller_keys_so_far: usize = 0;
         while let Some(b) = cur_node_ptr {
@@ -348,7 +375,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     /// `node.key` already exists in the tree, then the value in the existing
     /// node containing the key is swapped with the value in `node` and the
     /// updated `node` is returned, otherwise `None` is returned.
-    fn insert_node(root_ptr: &mut NodePtr<K, V>, mut node: Box<Node<K, V>>) -> NodePtr<K, V> {
+    fn insert_node(root_ptr: &mut NodePtr<K, V>, mut node: Box<Node<K, V>>) -> NodePtr<K, V>
+    where
+        K: Ord,
+    {
         let Some(root) = root_ptr.as_deref_mut() else {
             *root_ptr = Some(node);
             return None;
@@ -381,7 +411,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    pub fn insert(&mut self, key: K, value: V) -> Option<V> {
+    pub fn insert(&mut self, key: K, value: V) -> Option<V>
+    where
+        K: Ord,
+    {
         let old_value = Self::insert_node(&mut self.root, Node::new(key, value)).map(|b| b.value);
         debug_assert!(self.invariants_met());
         old_value
@@ -406,7 +439,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    pub fn pop_first(&mut self) -> Option<(K, V)> {
+    pub fn pop_first(&mut self) -> Option<(K, V)>
+    where
+        K: Ord,
+    {
         if self.root.is_none() {
             None
         } else {
@@ -416,7 +452,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    fn remove_node(root_ptr: &mut NodePtr<K, V>, key: &K) -> NodePtr<K, V> {
+    fn remove_node(root_ptr: &mut NodePtr<K, V>, key: &K) -> NodePtr<K, V>
+    where
+        K: Ord,
+    {
         let Some(root) = root_ptr.as_deref_mut() else {
             return None;
         };
@@ -463,7 +502,10 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
         }
     }
 
-    pub fn remove(&mut self, key: &K) -> Option<V> {
+    pub fn remove(&mut self, key: &K) -> Option<V>
+    where
+        K: Ord,
+    {
         let removed_value = Self::remove_node(&mut self.root, key).map(|b| b.value);
         debug_assert!(self.invariants_met());
         removed_value
@@ -485,11 +527,11 @@ impl<K: Ord, V> AvlTreeMap<K, V> {
     }
 }
 
-pub struct Iter<'a, K: Ord, V>(
+pub struct Iter<'a, K, V>(
     Vec<&'a Node<K, V>>, // used as a stack
 );
 
-impl<'a, K: Ord, V> Iterator for Iter<'a, K, V> {
+impl<'a, K, V> Iterator for Iter<'a, K, V> {
     type Item = (&'a K, &'a V);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -504,7 +546,7 @@ impl<'a, K: Ord, V> Iterator for Iter<'a, K, V> {
     }
 }
 
-impl<K: Ord, V> Default for AvlTreeMap<K, V> {
+impl<K, V> Default for AvlTreeMap<K, V> {
     fn default() -> Self {
         Self::new()
     }
