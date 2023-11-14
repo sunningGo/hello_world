@@ -7,7 +7,6 @@ use std::{
     ops::{Bound, RangeBounds},
 };
 
-#[derive(Clone)]
 struct Node<K, V> {
     key: K,
     value: V,
@@ -32,7 +31,6 @@ impl<K, V> Node<K, V> {
 
 type NodePtr<K, V> = Option<Box<Node<K, V>>>;
 
-#[derive(Clone)]
 pub struct AvlTreeMap<K, V> {
     root: NodePtr<K, V>,
 }
