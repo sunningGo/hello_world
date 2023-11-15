@@ -29,10 +29,44 @@ impl<K, V> Node<K, V> {
     }
 }
 
+impl<K: Clone, V: Clone> Clone for Node<K, V> {
+    fn clone(&self) -> Self {
+        Self {
+            key: self.key.clone(),
+            value: self.value.clone(),
+            subtree_size: self.subtree_size,
+            subtree_height: self.subtree_height,
+            left_child: self.left_child.clone(),
+            right_child: self.right_child.clone(),
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.key.clone_from(&source.key);
+        self.value.clone_from(&source.value);
+        self.subtree_size = source.subtree_size;
+        self.subtree_height = source.subtree_height;
+        self.left_child.clone_from(&source.left_child);
+        self.right_child.clone_from(&source.right_child);
+    }
+}
+
 type NodePtr<K, V> = Option<Box<Node<K, V>>>;
 
 pub struct AvlTreeMap<K, V> {
     root: NodePtr<K, V>,
+}
+
+impl<K: Clone, V: Clone> Clone for AvlTreeMap<K, V> {
+    fn clone(&self) -> Self {
+        Self {
+            root: self.root.clone(),
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.root.clone_from(&source.root);
+    }
 }
 
 impl<K, V> AvlTreeMap<K, V> {
