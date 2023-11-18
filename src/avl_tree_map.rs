@@ -1,5 +1,4 @@
 #![allow(unused)]
-#![deny(unsafe_op_in_unsafe_fn)]
 
 use std::{
     cmp::{self, max, Ordering},

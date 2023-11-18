@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
