@@ -202,7 +202,7 @@ impl<K, V> AvlTreeMap<K, V> {
     {
         let mut cur_node_ptr = &self.root;
         loop {
-            let cur_node = &**cur_node_ptr.as_ref()?;
+            let cur_node = cur_node_ptr.as_deref()?;
             match key.cmp(&cur_node.key) {
                 Ordering::Less => cur_node_ptr = &cur_node.left_child,
                 Ordering::Equal => return Some(cur_node),
